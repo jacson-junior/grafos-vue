@@ -3,9 +3,9 @@
         <vertice v-for="v in vertices" ref="vertices" :key="v.id" :vertice-id="v.id" :pos-x="v.posX" :pos-y="v.posY" @clicked="clickVertice"
             class="vertice"></vertice>
         <svg height="100%" width="100%" version="1.1"
-     xmlns="http://www.w3.org/2000/svg"
-     xmlns:xlink="http://www.w3.org/1999/xlink">
-                <aresta v-for="a in arestas" :key="a.id" :aresta-id="a.id" :from="a.from" :to="a.to" class="aresta"></aresta>
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink">
+                <aresta v-for="a in arestas" :key="a.id" :aresta-id="a.id" :from="a.from" :to="a.to" :movey="a.translateY" :movex="a.translateX" class="aresta"></aresta>
         </svg>
     </div>
 </template>
@@ -38,6 +38,9 @@
                 }
                 if (self.btnSelected === 7) {
                     self.prim();
+                }
+                if(self.btnSelected === 8) {
+                    self.fuckerson();
                 }
             },
             welshPowell() {
@@ -236,14 +239,13 @@
             },
             prim(){
                 let self = this;
-                var _arestas, arestas = [];
+                var _arestas, arestas = []; 
                 var _vertices = [];
                 var vertices = [];
                 var listaSaturacao = [];
                 _arestas = this.$el.querySelectorAll('.aresta');
                 _vertices = this.$el.querySelectorAll('.vertice');
                 var i = 0;
-                console.log(_vertices);
                 self.vertices.forEach(function (vertice) {
                     //preenche vetor de cores
                     var qtd = [];
@@ -313,7 +315,6 @@
                         }),1)[0]);
                     }
                 }
-                console.log(resultadoArestas);
                 resultadoVertices.forEach(rVertice => {
                     [].forEach.call(_vertices, vertice => {
                         if(vertice.__vue__.verticeId === rVertice.id) {
@@ -330,13 +331,159 @@
                     });
                 })
             },
+            fuckerson(){
+                // Represents an edge from source to sink with capacity
+                var Edge = function(source, sink, capacity) {
+                    this.source = source;
+                    this.sink = sink;
+                    this.capacity = capacity;
+                    this.reverseEdge = null;
+                    this.flow = 0;
+                };
+
+                // Main class to manage the network
+                var FlowNetwork = function() {
+                    this.edges = {};
+
+                    // Is this edge/residual capacity combination in the path already?
+                    this.findEdgeInPath = function(path, edge, residual) {
+                        for(var p=0;p<path.length;p++)
+                            if(path[p][0] == edge && path[p][1] == residual)
+                                return true;
+                        return false;
+                    };
+
+                    this.addEdge = function(source, sink, capacity) {
+                        if(source == sink) return;
+
+                        // Create the two edges = one being the reverse of the other
+                        var edge = new Edge(source, sink, capacity);
+                        var reverseEdge = new Edge(sink, source, 0);
+
+                        // Make sure we setup the pointer to the reverse edge
+                        edge.reverseEdge= reverseEdge;
+                        reverseEdge.reverseEdge = edge;
+
+                        if(this.edges[source] === undefined) this.edges[source] = [];
+                        if(this.edges[sink] === undefined) this.edges[sink] = [];
+
+                        this.edges[source].push(edge);
+                        this.edges[sink].push(reverseEdge);
+                    };
+
+                    // Finds a path from source to sink
+                    this.findPath = function(source, sink, path) {
+                        if(source == sink) return path;
+
+                        for(var i=0;i<this.edges[source].length;i++) {
+                            var edge = this.edges[source][i];
+                            var residual = edge.capacity - edge.flow;
+
+                            // If we have capacity and we haven't already visited this edge, visit it
+                            if(residual > 0 && !this.findEdgeInPath(path, edge, residual)) {
+                                var tpath = path.slice(0);
+                                tpath.push([edge, residual]);
+                                var result = this.findPath(edge.sink, sink, tpath);
+                                if(result != null) return result;
+                            }
+                        }
+                        return null;
+                    };
+
+                    // Find the max flow in this network
+                    this.maxFlow = function(source, sink) {
+                        var path = this.findPath(source, sink, []);
+
+                        while(path != null) {
+                            var flow = 999999;
+                            // Find the minimum flow
+                            for(var i=0;i<path.length;i++)
+                                if(path[i][1] < flow) flow = path[i][1];
+                            // Apply the flow to the edge and the reverse edge
+                            for(var i=0;i<path.length;i++) {
+                                path[i][0].flow += flow;
+                                path[i][0].reverseEdge.flow -= flow;
+                            }
+                            path = this.findPath(source, sink, []);
+                        }
+                        var sum = 0;
+                        console.log(this.edges)
+                        for(var i=0;i<this.edges[source].length;i++){
+                            sum += this.edges[source][i].flow;
+
+                        }
+
+                        return {
+                            sum,
+                            edges: this.edges
+                        }
+                    };
+                };
+
+                let self = this;
+                var _arestas, arestas = []; 
+                var _vertices = [];
+                var vertices = [];
+                var listaSaturacao = [];
+                _arestas = this.$el.querySelectorAll('.aresta');
+                _vertices = this.$el.querySelectorAll('.vertice');
+                var i = 0;
+                self.vertices.forEach(function (vertice) {
+                    //preenche vetor de cores
+                    var qtd = [];
+                    qtd = [].filter.call(_arestas, a => {
+                        return (a.__vue__.from.verticeId === vertice.id || a.__vue__.to.verticeId === vertice.id);
+                    }).length;
+
+                    vertices[i] = {id: vertice.id, cor: 'rgba(219,219,219)'};
+
+                    i++;
+                }, this);
+
+                i = 0;
+                [].forEach.call(_arestas, aresta => {
+                    arestas[i] = {from: aresta.__vue__.from, to: aresta.__vue__.to, peso: aresta.__vue__.peso, cor: aresta.__vue__.color};
+                    i++;
+                });
+
+                var fn = new FlowNetwork();
+
+                console.log(arestas);
+
+                arestas.forEach(a =>{
+                    fn.addEdge(""+a.from.verticeId, ""+a.to.verticeId, a.peso);
+                });
+                console.log(fn);
+
+                var inicio = prompt("Insira o id do inicio", "0");
+                var fim  = prompt("Insira o id do fim", "0");
+
+                console.log("inicio/fim", inicio, fim);
+                var max = fn.maxFlow(inicio,fim);
+                console.log(max.edges[0]);
+
+                alert("Fluxo maximo = " + max.sum);
+
+                Object.keys(max.edges).forEach(v => {
+                    max.edges[v].forEach(a => {
+                        [].forEach.call(_arestas, ar => {
+                            if(ar.__vue__.from.verticeId === parseInt(a.source) && ar.__vue__.to.verticeId === parseInt(a.sink)){
+                                ar.__vue__.flow = a.flow + "/";
+                            }
+                        })
+                    });
+                });
+            },
             addAresta(inicio, fim) {
                 let self = this;
                 var aux = self.arestas.filter(a => {
                     return (a.from.verticeId === inicio.verticeId && a.to.verticeId === fim.verticeId) || (a.to.verticeId === inicio.verticeId && a.from.verticeId === fim.verticeId)
                 })
                 if (aux.length === 0) {
-                    self.arestas.push({ id: self.arestasQtd, from: inicio, to: fim });
+                    self.arestas.push({ id: self.arestasQtd, from: inicio, to: fim, translateX: 10, translateY: 10 });
+                    self.arestasQtd++;
+                }else if(aux.length === 1){
+                    self.arestas.push({ id: self.arestasQtd, from: inicio, to: fim, translateX: -10, translateY: -10 });
                     self.arestasQtd++;
                 }
             },
@@ -370,7 +517,6 @@
     }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
     .canvas{
         height: 100%;

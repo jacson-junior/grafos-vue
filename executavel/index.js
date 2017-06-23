@@ -33,9 +33,9 @@ const grafos = new Grafo(false,false);
 
     grafos.imprimir();
     
-    process.stdout.write('\n\n############################DJIKSTRA############################\n');
-    var total = grafos.calcularCaminho(grafos.djikstra('1','5'), '1');
-    process.stdout.write("Total: " + total);
+    // process.stdout.write('\n\n############################DJIKSTRA############################\n');
+    // var total = grafos.calcularCaminho(grafos.djikstra('1','5'), '1');
+    // process.stdout.write("Total: " + total);
 
     // process.stdout.write('\n\n############################BFS############################\n');
     // total = grafos.calcularCaminho(grafos.bfs('1','4'), '1');

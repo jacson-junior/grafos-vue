@@ -9,7 +9,8 @@
                   <a class="button is-danger is-outlined" v-bind:class="{ 'is-active': 4 == selected }" @click="select(4)">Remover</a>
                   <a class="button" v-bind:class="{ 'is-active': 5 == selected }" @click="select(5)">Welsh e Powell</a>
                   <a class="button" v-bind:class="{ 'is-active': 6 == selected }" @click="select(6)">DSATUR</a>
-                  <a class="button" v-bind:class="{ 'is-active': 6 == selected }" @click="select(7)">Prim</a>
+                  <a class="button" v-bind:class="{ 'is-active': 7 == selected }" @click="select(7)">Prim</a>
+                  <a class="button" v-bind:class="{ 'is-active': 8 == selected }" @click="select(8)">DFS</a>
                 </a>
             </div>
         </nav>

@@ -259,31 +259,6 @@ class Grafo {
   }
 
   dfs (inicio) {
-      // var pilha = [];
-      // var visitados = {};
-      // var vertice;
-      // var inicio = inicio
-      // pilha.push(inicio);
-      // visitados[inicio] = {};
-
-      // while (pilha.length) {
-
-      //   vertice = pilha.pop();
-
-      //   if (vertice === fim) {
-      //     delete visitados[inicio];
-      //     return visitados;
-      //   }
-      //   for (var v in this._vertices[vertice].arestas) {
-      //     if(v !== 'peso'){
-      //       if (this._vertices[vertice].arestas[v] && !visitados[v]) {
-      //         pilha.push(v);
-      //         visitados[vertice] = true;
-      //       }
-      //     }
-      //   }
-      // }
-      // return false;
       var visitados = [];
       var pilha = [inicio];
       var atual = inicio;

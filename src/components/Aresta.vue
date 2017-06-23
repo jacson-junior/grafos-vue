@@ -1,11 +1,18 @@
 <template>
-    <g>
+    <g :transform="transform">
         <defs>
-            <path :id="id" :d="path" :style="{ 'stroke': color, 'stroke-width': '1' }" />
+            <marker id="markerArrow" markerWidth="13" markerHeight="13" refX="2" refY="6" orient="auto">
+                 <path d="M2,2 L2,11 L10,6 L2,2" style="fill: #000;" />
+            </marker>
+            <path :id="id" :d="path" :style="{ 'stroke': color, 'stroke-width': '1' }" marker-mid="url(#markerArrow)"/>
         </defs>
-        <use :xlink:href="refId" fill="none" />
-        <text text-anchor="middle" fill="#363636" v-on:dblclick="consol">
-            <textPath startOffset="50%" :xlink:href="refId">{{pesoCorreto}}</textPath>
+        <use :xlink:href="refId" fill="none"/>
+        <text text-anchor="middle" fill="blue" v-on:dblclick="consol">
+            <textPath startOffset="50%" :xlink:href="refId">{{flow}}{{pesoCorreto}}</textPath>
+        </text>
+        <text fill="red">
+            <textPath :xlink:href="refId" startOffset="30%" style="dominant-baseline: central; ">➤</textPath>
+            <textPath :xlink:href="refId" startOffset="70%" style="dominant-baseline: central; ">➤</textPath>
         </text>
     </g>
 </template>
@@ -20,8 +27,12 @@ export default {
             x2: 0,
             y2: 0,
             id: 0,
+            tx: 0,
+            ty: 0,
+            ligacoes: 0,
             color: 'rgb(219, 219, 219)',
-            peso: 0
+            peso: 0,
+            flow: ""
         }
     },
 
@@ -32,6 +43,7 @@ export default {
         self.x2 = self.to.x + 25;
         self.y2 = self.to.y - 25;
         self.id = "aresta-" + self.arestaId;
+        self.ligacoes = self.lig;
         self.consol();
     },
 
@@ -70,6 +82,10 @@ export default {
             }else{
                 return self.peso;
             }
+        },
+        transform() {
+            console.log(this);
+            return `translate(${this.movey}, ${this.movex})`
         }
     },
 
@@ -81,7 +97,7 @@ export default {
         }
     },
 
-    props: ['aresta-id', 'from', 'to']
+    props: ['aresta-id', 'from', 'to', 'lig', 'movex', 'movey']
 }
 </script>
 
